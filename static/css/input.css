@@ -1,3 +1,11 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #36775E;
+  --color-accent: #65F2BD;
+  
+}
+
+@theme {  --font-poppins: Poppins, sans-serif;}
+
 /* npx @tailwindcss/cli -i static/css/input.css -o static/css/output.css --watch */
