@@ -417,3 +417,5 @@ if __name__ == '__main__':
     
     r = main(example_path)
     print("ASL Translation:", r)
+
+    

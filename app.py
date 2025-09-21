@@ -24,10 +24,14 @@ def upload():
     filepath = os.path.join(UPLOAD_FOLDER, file.filename)
     file.save(filepath)
 
-    main(filepath)
-
-    # run ai
-    return flask.jsonify({"message": "File uploaded successfully", "filename": file.filename})
+    result = main(filepath)
+    
+    # Return the result in the JSON response
+    return flask.jsonify({
+        "message": "File uploaded successfully", 
+        "filename": file.filename,
+        "result": result
+    })
 
 
 if __name__ == "__main__":
