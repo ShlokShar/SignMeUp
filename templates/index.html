@@ -5,9 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SignMeUp</title>
   <link href="../static/css/output.css" rel="stylesheet">
+  <link href="../static/css/animation.css" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
 </head>
 <body class="flex min-h-screen w-full flex-col items-center space-y-[76px]">
   <!--NAVIGATION BAR-->
@@ -17,15 +23,15 @@
       <p class="font-poppins font-semibold text-[24px]">SignMeUp</p>
     </div>
     <div class="absolute left-1/2 transform -translate-x-1/2 flex flex-row space-x-[8px] items-center text-[16px] text-[#5A5A5A] font-poppins font-medium">
-      <p class="">Inspiration</p>
+      <a class="cursor-pointer" href="">Inspiration</a>
       <div class="w-[4px] h-[4px] bg-gray-500 rounded-full"></div>
-      <p class="">Devpost</p>
+      <a class="cursor-pointer" href="https://hello-world-2025.devpost.com/?ref_feature=challenge&ref_medium=your-open-hackathons&ref_content=Submissions+open&_gl=1*crt6k8*_gcl_au*NjM5ODg0MjA4LjE3NTgzOTU4Mzc.*_ga*ODY5MzE5NTQ4LjE3NTAwOTIyOTc.*_ga_0YHJK3Y10M*czE3NTg0Mjc2OTkkbzYkZzAkdDE3NTg0Mjc2OTkkajYwJGwwJGgw">Devpost</a>
       <div class="w-[4px] h-[4px] bg-gray-500 rounded-full"></div>
-      <p class="">Source Code</p>
+      <a class="cursor-pointer" href="https://github.com/ShlokShar/SignMeUp">Source Code</a>
     </div>
-    <div class="flex flex-row space-x-[14px] justify-between items-center text-[16px] cursor-pointer hover:translate-y-0.5 duration-200">
+    <a class="flex flex-row space-x-[14px] justify-between items-center text-[16px] cursor-pointer hover:translate-y-0.5 duration-200" href="#upload-container">
       <div class="bg-black px-3.5 py-2 text-white rounded-[15px]">Try Now</div>
-    </div>
+    </a>
   </nav>
   <div class="flex flex-col space-y-[38px] items-center">
     <div class="flex flex-col space-y-[12px] items-center">
@@ -36,13 +42,13 @@
       <p class="font-poppins font-medium text-[60px] leading-[70px] max-w-[600px] text-center">Stories Should Be Understood by All</p>
       <p class="font-regular text-[18px] leading-[20px] max-w-[600px] text-center text-[#696969] ">Sign Me Up makes speech captions clear for ASL, so no one misses out.</p>
     </div>
-    <a href="#_" class="cursor-pointer font-poppins font-semibold text-[20px] relative inline-flex items-center justify-center p-4 px-6 py-3 overflow-hidden text-accent transition duration-300 ease-out border-2 border-accent rounded-full shadow-md group hover:translate-y-0.5">
+    <a href="#upload-container" class="cursor-pointer font-poppins font-semibold text-[20px] relative inline-flex items-center justify-center p-4 px-6 py-3 overflow-hidden text-accent transition duration-300 ease-out border-2 border-accent rounded-full shadow-md group hover:translate-y-0.5">
       <span class="absolute inset-0 flex items-center justify-center w-full h-full text-primary duration-300 -translate-x-full bg-white group-hover:translate-x-0 ease"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg></span>
       <span class="absolute flex items-center justify-center w-full h-full bg-primary text-white transition-all duration-500 transform group-hover:translate-x-full ease">Upload Video</span>
       <span class="relative invisible">Upload Video</span>
     </a>
   </div>
-  <div class="flex flex-row space-x-2 justify-center">
+  <div class="gallery flex flex-row space-x-2 justify-center">
     <div class="flex flex-col w-1/3 items-end justify-between space-y-2">
       <img src="../static/img/image 4.png">
       <img src="../static/img/image 5.png">
@@ -58,16 +64,16 @@
       <img src="../static/img/image 11.png">
     </div>
   </div>
-  <div class="flex flex-col items-center space-y-[38px] relative">
+  <div id="upload-container" class="upload-container flex flex-col items-center space-y-[38px] relative">
     <p class="font-poppins font-semibold text-[22px]">Upload</p>
     <div class="relative">
       <div class="absolute inset-0 rounded-[20px] bg-gradient-to-r from-primary to-accent blur-2xl opacity-40"></div>
       <label 
         for="file-upload" 
         id="drop-area"
-        class="relative cursor-pointer flex flex-col justify-center items-center w-[600px] h-[400px] bg-white border-2 border-dashed rounded-[20px] border-[#B4B4B4] space-y-3"
+        class="relative cursor-pointer flex flex-col justify-center items-center w-[600px] h-[400px] bg-white border-2 border-dashed rounded-[20px] border-[#B4B4B4] space-y-4"
       >
-        <img src="../static/img/upload.png" width="60px">
+        <img class="upload-icon" src="../static/img/upload.png" width="60px">
         <p class="text-[14px]">Drag & Drop your file here or <span class="underline font-bold">Choose file</span></p>
       </label>
     </div>

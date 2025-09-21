@@ -1,0 +1,68 @@
+.gallery {
+  animation: gallery-reveal 1s;
+}
+
+@keyframes gallery-reveal {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+
+.upload-icon {
+  animation: upload-icon-loop 2s infinite;
+}
+
+@keyframes upload-icon-loop {
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(10px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.upload-icon:hover {
+  animation: upload-icon-hover 1s infinite ease-out;
+}
+
+@keyframes upload-icon-hover {
+  0% {
+    transform: translateY(0);
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: translateY(10px);
+    transform: rotate(10deg);
+  }
+
+  50% {
+    transform: translateY(10px);
+    transform: rotate(0deg);
+  }
+
+  75% {
+    transform: translateY(10px);
+    transform: rotate(-10deg);
+  }
+
+  100% {
+    transform: translateY(0);
+    transform: rotate(0deg);
+  }
+}
+
+.upload-container:hover .upload-icon {
+  animation: upload-icon-hover 1s infinite linear;
+}
