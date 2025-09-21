@@ -13,10 +13,142 @@
     html {
       scroll-behavior: smooth;
     }
+    .no-select {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      cursor: default;
+    }
+    #current-sign {
+      pointer-events: none;
+    }
+    .video-container {
+      position: relative;
+      display: inline-block;
+    }
+    .asl-overlay {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 12px;
+      padding: 12px;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+      z-index: 10;
+      max-width: 200px;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .asl-overlay.hidden {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .asl-overlay img {
+      max-width: 80px;
+      max-height: 80px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    .asl-overlay .word-text {
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      margin-top: 8px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    }
+    .asl-overlay .lexical-class {
+      color: #e5e7eb;
+      font-size: 12px;
+      font-weight: 400;
+      text-align: center;
+      margin-top: 4px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    }
+
+    .overlay-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 11;
+      backdrop-filter: blur(5px);
+    }
+    .gallery img, .gallery video {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      border-radius: 16px;
+    }
+    
+    .gallery video {
+      object-position: left top;
+    }
+    
+    /* Progress bar styles */
+    .progress-container {
+      width: 100%;
+      background-color: #e5e7eb;
+      border-radius: 9999px;
+      height: 8px;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(to right, #3b82f6, #8b5cf6);
+      border-radius: 9999px;
+      transition: width 0.3s ease-out;
+      width: 0%;
+    }
+    
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 4px 0;
+    }
+    
+    .step-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+    
+    .step-dot.pending {
+      background-color: #d1d5db;
+    }
+    
+    .step-dot.active {
+      background-color: #3b82f6;
+      animation: pulse 2s infinite;
+    }
+    
+    .step-dot.completed {
+      background-color: #10b981;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
   </style>
 </head>
-<body class="flex min-h-screen w-full flex-col items-center space-y-[76px]">
-  <!--NAVIGATION BAR-->
+<body class="flex min-h-screen w-full flex-col items-center space-y-[76px] pb-8">
   <nav class="w-full flex flex-row justify-between px-[20px] py-[12px] items-center">
     <div class="flex flex-row space-x-[8px] justify-center items-center">
       <img src="../static/img/logo.png" width="48px" height="48px">
@@ -52,8 +184,24 @@
   
   <div class="gallery flex flex-row space-x-2 justify-center">
     <div class="flex flex-col w-1/3 items-end justify-between space-y-2">
-      <img src="../static/img/image 4.png">
-      <img src="../static/img/image 5.png">
+      <video 
+        autoplay 
+        loop 
+        muted 
+        playsinline
+      >
+        <source src="../static/img/forestGump.mp4" type="video/mp4">
+        <img src="../static/img/image 4.png" alt="Fallback image">
+      </video>
+      <video 
+        autoplay 
+        loop 
+        muted 
+        playsinline
+      >
+        <source src="../static/img/SocialNetwork.mp4" type="video/mp4">
+        <img src="../static/img/image 5.png" alt="Fallback image">
+      </video>
       <img src="../static/img/image 9.png">
     </div>
     <div class="flex flex-col w-1/3 items-center justify-between space-y-2">
@@ -83,84 +231,81 @@
     <input id="file-upload" type="file" class="hidden" accept="video/*" />
   </div>
 
-  <!-- Video and ASL Translation Display -->
-  <div id="video-display" class="hidden flex flex-col items-center space-y-6 w-full py-8">
-    <h2 class="font-poppins font-semibold text-[22px]">Your Uploaded Video</h2>
-    <div class="flex justify-center items-center w-full">
+  <div id="video-display" class="hidden flex flex-col items-center space-y-[38px] w-[600px] py-8">
+    <h2 class="font-poppins font-semibold text-[22px]">Result</h2>
+    
+    <div class="video-container">
       <video 
         id="uploaded-video"
-        class="max-w-4xl w-full h-auto rounded-lg shadow-lg" 
-        controls 
+        class="w-[600px] h-[338px] rounded-lg shadow-lg object-cover"
+        controls
         preload="metadata"
-      >
+      > 
         <source id="video-source" src="" type="video/mp4">
         Your browser does not support the video tag.
       </video>
-    </div>
-    
-    <!-- Loading indicator -->
-    <div id="processing-indicator" class="hidden flex flex-col items-center space-y-4">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      <p class="font-poppins text-[16px] text-[#696969]">Processing video for ASL translation...</p>
-    </div>
-    
-    <!-- ASL Translation Result in H1 -->
-    <h1 id="asl-result" class="hidden font-poppins text-[32px] font-bold text-center max-w-4xl leading-relaxed mb-8"></h1>
-    
-    <!-- ASL Sign Images Display -->
-    <div id="asl-signs-container" class="hidden w-full max-w-6xl">
-      <h3 class="font-poppins font-semibold text-[20px] mb-6 text-center">ASL Sign Images</h3>
       
-      <!-- Slideshow Container -->
-      <div class="relative bg-gray-50 rounded-lg p-8 min-h-[300px] flex items-center justify-center">
-        <!-- Single sign display area -->
-        <div id="current-sign" class="text-center transition-all duration-500 ease-in-out opacity-0 z-10 relative">
-          <!-- Sign content will be inserted here -->
+      <!-- Toggle button for overlay -->
+      <button id="overlay-toggle" class="overlay-toggle">
+        ASL On
+      </button>
+      
+
+      
+      <!-- ASL overlay -->
+      <div id="asl-overlay" class="asl-overlay hidden">
+        <div id="current-sign-overlay" class="no-select">
         </div>
-        
-        <!-- Navigation controls -->
-        <button id="prev-sign" class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white hover:bg-gray-100 rounded-full p-3 shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-          </svg>
-        </button>
-        
-        <button id="next-sign" class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white hover:bg-gray-100 rounded-full p-3 shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-          </svg>
-        </button>
-        
-        <!-- Auto-play toggle -->
-        <button id="play-pause" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-3 shadow-lg transition-all">
-          <svg id="play-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h1m4 0h1m-6-8h8a2 2 0 012 2v8a2 2 0 01-2 2H8a2 2 0 01-2-2V6a2 2 0 012-2z"></path>
-          </svg>
-          <svg id="pause-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-        </button>
-      </div>
-      
-      <!-- Progress indicators -->
-      <div id="sign-indicators" class="flex justify-center mt-4 space-x-2">
-        <!-- Dots will be added here dynamically -->
-      </div>
-      
-      <!-- Sign counter -->
-      <div id="sign-counter" class="text-center mt-2 text-gray-600 text-sm">
-        <!-- Counter will be updated here -->
       </div>
     </div>
+    
+    <div id="processing-indicator" class="hidden flex flex-col items-center space-y-6">
+      <div class="flex flex-col items-center space-y-4">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <p id="processing-text" class="font-poppins text-[16px] text-[#696969]">Processing video for ASL translation...</p>
+      </div>
+      
+      <!-- Progress bar container -->
+      <div class="progress-container w-[400px]">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+      
+      <!-- Progress steps -->
+      <div class="flex flex-col space-y-2 text-sm text-gray-600 w-[400px]">
+        <div id="step-upload" class="step-indicator">
+          <div class="step-dot pending"></div>
+          <span>Uploading video...</span>
+        </div>
+        <div id="step-extract" class="step-indicator">
+          <div class="step-dot pending"></div>
+          <span>Extracting audio...</span>
+        </div>
+        <div id="step-transcribe" class="step-indicator">
+          <div class="step-dot pending"></div>
+          <span>Transcribing speech...</span>
+        </div>
+        <div id="step-asl" class="step-indicator">
+          <div class="step-dot pending"></div>
+          <span>Generating ASL signs...</span>
+        </div>
+      </div>
+      
+      <!-- Estimated time -->
+      <p id="estimated-time" class="text-xs text-gray-500">Estimated time: 30-60 seconds</p>
+    </div>
+    
+
   </div>
 
   <script>
     let aslDictionary = {};
-    let dictionaryLoaded = false;
     let currentSigns = [];
     let currentSignIndex = 0;
-    let autoPlayInterval = null;
-    let isPlaying = false;
+    let slideInterval = null;
+    let overlayEnabled = true;
+    let autoAdvance = true;
+    let processingSteps = ['step-upload', 'step-extract', 'step-transcribe', 'step-asl'];
+    let currentStep = 0;
 
     document.addEventListener('DOMContentLoaded', function() {
       const fileUpload = document.getElementById('file-upload');
@@ -169,84 +314,68 @@
       const videoSource = document.getElementById('video-source');
       const uploadedVideo = document.getElementById('uploaded-video');
       const processingIndicator = document.getElementById('processing-indicator');
-      const aslResult = document.getElementById('asl-result');
-      const aslSignsContainer = document.getElementById('asl-signs-container');
-      const currentSign = document.getElementById('current-sign');
-      const prevButton = document.getElementById('prev-sign');
-      const nextButton = document.getElementById('next-sign');
-      const playPauseButton = document.getElementById('play-pause');
-      const playIcon = document.getElementById('play-icon');
-      const pauseIcon = document.getElementById('pause-icon');
+      const processingText = document.getElementById('processing-text');
+      const progressBar = document.getElementById('progress-bar');
+      const estimatedTime = document.getElementById('estimated-time');
+
+      const currentSignOverlay = document.getElementById('current-sign-overlay');
+      const aslOverlay = document.getElementById('asl-overlay');
+      const overlayToggle = document.getElementById('overlay-toggle');
+
       const signIndicators = document.getElementById('sign-indicators');
       const signCounter = document.getElementById('sign-counter');
 
-      // Load ASL dictionary from CSV
       loadASLDictionary();
 
-      // Navigation event listeners
-      prevButton.addEventListener('click', () => {
-        if (currentSignIndex > 0) {
-          showSign(currentSignIndex - 1);
-        }
-      });
+      fileUpload.addEventListener('change', (e) => handleFile(e.target.files[0]));
 
-      nextButton.addEventListener('click', () => {
-        if (currentSignIndex < currentSigns.length - 1) {
-          showSign(currentSignIndex + 1);
-        }
-      });
-
-      playPauseButton.addEventListener('click', toggleAutoPlay);
-
-      // Handle file selection
-      fileUpload.addEventListener('change', function(e) {
-        handleFile(e.target.files[0]);
-      });
-
-      // Handle drag and drop
-      dropArea.addEventListener('dragover', function(e) {
+      dropArea.addEventListener('dragover', (e) => {
         e.preventDefault();
         dropArea.classList.add('border-primary');
       });
 
-      dropArea.addEventListener('dragleave', function(e) {
+      dropArea.addEventListener('dragleave', (e) => {
         e.preventDefault();
         dropArea.classList.remove('border-primary');
       });
 
-      dropArea.addEventListener('drop', function(e) {
+      dropArea.addEventListener('drop', (e) => {
         e.preventDefault();
         dropArea.classList.remove('border-primary');
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-          handleFile(files[0]);
+        if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+      });
+
+      uploadedVideo.addEventListener('play', () => {
+        if (autoAdvance) startSlideshow();
+      });
+      
+      uploadedVideo.addEventListener('pause', () => {
+        clearInterval(slideInterval);
+      });
+      
+      uploadedVideo.addEventListener('ended', () => {
+        clearInterval(slideInterval);
+        showSign(0);
+      });
+
+      // Overlay controls
+      overlayToggle.addEventListener('click', () => {
+        overlayEnabled = !overlayEnabled;
+        aslOverlay.classList.toggle('hidden', !overlayEnabled);
+        overlayToggle.textContent = overlayEnabled ? 'ASL On' : 'ASL Off';
+        
+        if (overlayEnabled && currentSigns.length > 0) {
+          showSignOverlay(currentSignIndex);
         }
       });
 
       function handleFile(file) {
         if (file && file.type.startsWith('video/')) {
-          // Show video preview
-          const videoURL = URL.createObjectURL(file);
-          videoSource.src = videoURL;
+          videoSource.src = URL.createObjectURL(file);
           uploadedVideo.load();
-          videoDisplay.classList.remove('hidden');
-          
-          // Show processing indicator
+          document.getElementById('upload-container').classList.add('hidden');
           processingIndicator.classList.remove('hidden');
-          aslResult.classList.add('hidden');
-          aslSignsContainer.classList.add('hidden');
-          
-          // Stop any ongoing slideshow
-          stopAutoPlay();
-          
-          // Update drop area
-          const dropText = dropArea.querySelector('p');
-          dropText.innerHTML = `✅ Video uploaded: ${file.name}`;
-          
-          // Scroll to video
-          videoDisplay.scrollIntoView({ behavior: 'smooth' });
-          
-          // Upload and process file
+          processingIndicator.scrollIntoView({ behavior: 'smooth' });
           uploadAndProcess(file);
         } else {
           alert('Please upload a valid video file.');
@@ -257,95 +386,115 @@
         const formData = new FormData();
         formData.append('file', file);
 
-        fetch('/upload', {
-          method: 'POST',
-          body: formData
+        // Reset progress
+        currentStep = 0;
+        updateProgress(0, "Uploading video...");
+
+        fetch('/upload', { method: 'POST', body: formData })
+        .then(response => {
+          updateProgress(25, "Extracting audio...");
+          return response.json();
         })
-        .then(response => response.json())
         .then(data => {
-          processingIndicator.classList.add('hidden');
+          updateProgress(50, "Transcribing speech...");
           
-          if (data.result) {
-            // Display the result text
-            aslResult.textContent = data.result;
-            aslResult.classList.remove('hidden');
+          // Simulate progressive loading for better UX
+          setTimeout(() => {
+            updateProgress(75, "Generating ASL signs...");
             
-            // Display ASL sign images as slideshow
-            displayASLSigns(data.result);
-          } else {
-            alert('Error processing video: ' + (data.error || 'No result returned'));
-          }
+            setTimeout(() => {
+              updateProgress(100, "Complete!");
+              
+              setTimeout(() => {
+                processingIndicator.classList.add('hidden');
+                if (data.result) {
+                  videoDisplay.classList.remove('hidden');
+                  displayASLSigns(data.result);
+                  videoDisplay.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  document.getElementById('upload-container').classList.remove('hidden');
+                  alert('Error processing video: ' + (data.error || 'No result returned'));
+                }
+              }, 500);
+            }, 1000);
+          }, 1000);
         })
         .catch(error => {
           processingIndicator.classList.add('hidden');
-          console.error('Error:', error);
+          document.getElementById('upload-container').classList.remove('hidden');
           alert('Error uploading file. Please try again.');
         });
+      }
+
+      function updateProgress(percentage, message) {
+        progressBar.style.width = percentage + '%';
+        processingText.textContent = message;
+        
+        // Update step indicators
+        const stepIndex = Math.floor((percentage / 100) * processingSteps.length);
+        
+        processingSteps.forEach((stepId, index) => {
+          const stepElement = document.getElementById(stepId);
+          const indicator = stepElement.querySelector('.step-dot');
+          
+          if (index < stepIndex) {
+            // Completed step
+            indicator.className = 'step-dot completed';
+          } else if (index === stepIndex) {
+            // Current step
+            indicator.className = 'step-dot active';
+          } else {
+            // Future step
+            indicator.className = 'step-dot pending';
+          }
+        });
+        
+        // Update estimated time
+        if (percentage < 100) {
+          const remainingSeconds = Math.max(5, 60 - (percentage * 0.6));
+          estimatedTime.textContent = `Estimated time remaining: ${Math.ceil(remainingSeconds)} seconds`;
+        } else {
+          estimatedTime.textContent = "Processing complete!";
+        }
       }
 
       async function loadASLDictionary() {
         try {
           const response = await fetch('/static/ASL-LEX View Data.csv');
-          if (!response.ok) {
-            console.warn('ASL dictionary CSV not found. Sign images will not be displayed.');
-            return;
-          }
+          if (!response.ok) return;
           
           const csvContent = await response.text();
           const lines = csvContent.split('\n');
           const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
           
-          // Find column indices
-          const entryIdIndex = headers.findIndex(h => h.toLowerCase().includes('entry id') || h === 'Entry ID');
-          const handshapeImageIndex = headers.findIndex(h => h.toLowerCase().includes('handshape image') || h === 'Handshape Image');
-          const lexicalClassIndex = headers.findIndex(h => h.toLowerCase().includes('lexical class') || h === 'Lexical Class');
-          const dominantTranslationIndex = headers.findIndex(h => h.toLowerCase().includes('dominant translation') || h === 'Dominant Translation');
+          const entryIdIndex = headers.findIndex(h => h.toLowerCase().includes('entry id'));
+          const handshapeImageIndex = headers.findIndex(h => h.toLowerCase().includes('handshape image'));
+          const lexicalClassIndex = headers.findIndex(h => h.toLowerCase().includes('lexical class'));
           
-          if (entryIdIndex === -1 || handshapeImageIndex === -1) {
-            console.warn('Required CSV columns not found');
-            return;
-          }
+          if (entryIdIndex === -1 || handshapeImageIndex === -1) return;
 
-          // Process each row
           for (let i = 1; i < lines.length; i++) {
             const line = lines[i].trim();
             if (!line) continue;
             
             const row = parseCSVLine(line);
-            if (row.length <= Math.max(entryIdIndex, handshapeImageIndex)) continue;
-            
-            const entryId = row[entryIdIndex] ? row[entryIdIndex].replace(/^"|"$/g, '').trim() : '';
-            const handshapeImage = row[handshapeImageIndex] ? row[handshapeImageIndex].replace(/^"|"$/g, '').trim() : '';
+            const entryId = row[entryIdIndex]?.replace(/^"|"$/g, '').trim();
+            const handshapeImage = row[handshapeImageIndex]?.replace(/^"|"$/g, '').trim();
             
             if (entryId && handshapeImage && handshapeImage !== 'N/A' && handshapeImage.includes('src=')) {
               const word = entryId.replace(/_/g, ' ').toLowerCase();
-              
-              let originalImageUrl = null;
               const match = handshapeImage.match(/src="([^"]+)"/);
               if (match) {
-                originalImageUrl = match[1];
-              }
-
-              if (originalImageUrl) {
-                const lexicalClass = row[lexicalClassIndex] ? row[lexicalClassIndex].replace(/^"|"$/g, '').trim() : 'Unknown';
-                const translation = row[dominantTranslationIndex] ? row[dominantTranslationIndex].replace(/^"|"$/g, '').trim() : null;
-                
+                const lexicalClass = row[lexicalClassIndex]?.replace(/^"|"$/g, '').trim() || 'Unknown';
                 aslDictionary[word] = {
-                  word: word,
-                  entryId: entryId,
-                  imageUrl: originalImageUrl,
-                  lexicalClass: lexicalClass,
-                  translation: (translation && translation !== "N/A") ? translation : null
+                  imageUrl: match[1],
+                  lexicalClass: lexicalClass
                 };
               }
             }
           }
-          
-          dictionaryLoaded = true;
-          console.log(`ASL dictionary loaded: ${Object.keys(aslDictionary).length} signs`);
-          
         } catch (error) {
-          console.warn('Could not load ASL dictionary:', error);
+          console.warn('Could not load ASL dictionary');
         }
       }
 
@@ -353,11 +502,9 @@
         const result = [];
         let current = '';
         let inQuotes = false;
-        let i = 0;
         
-        while (i < line.length) {
+        for (let i = 0; i < line.length; i++) {
           const char = line[i];
-          
           if (char === '"') {
             if (inQuotes && line[i + 1] === '"') {
               current += '"';
@@ -371,219 +518,75 @@
           } else {
             current += char;
           }
-          i++;
         }
-        
         result.push(current);
         return result;
       }
 
       function displayASLSigns(resultText) {
-        if (!dictionaryLoaded) {
-          console.log('ASL dictionary not loaded, skipping sign display');
-          return;
-        }
-
-        // Clean and split the result text into words
-        const words = resultText.toLowerCase()
-          .replace(/[^\w\s]/g, '')
-          .split(/\s+/)
-          .filter(word => word.length > 0);
-
-        // Create sign data array - include all words
-        currentSigns = words.map(word => {
-          const signData = aslDictionary[word];
-          return {
-            word: word,
-            signData: signData
-          };
-        });
-
+        const words = resultText.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter(word => word.length > 0);
+        currentSigns = words.map(word => ({ word, signData: aslDictionary[word] }));
+        
         if (currentSigns.length === 0) return;
-
-        // Create indicators
-        createIndicators();
         
-        // Show first sign
         currentSignIndex = 0;
-        showSign(0);
         
-        // Show the signs container
-        aslSignsContainer.classList.remove('hidden');
-        
-        // Set up video event listeners for synchronized playback
-        setupVideoSyncedPlayback();
+        // Show overlay if enabled
+        if (overlayEnabled) {
+          aslOverlay.classList.remove('hidden');
+          showSignOverlay(0);
+        }
       }
 
       function createIndicators() {
-        signIndicators.innerHTML = '';
-        currentSigns.forEach((_, index) => {
-          const dot = document.createElement('button');
-          dot.className = 'w-3 h-3 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors';
-          dot.addEventListener('click', () => showSign(index));
-          signIndicators.appendChild(dot);
-        });
+        // Indicators are no longer needed since we removed the main display
       }
 
       function showSign(index) {
         if (index < 0 || index >= currentSigns.length) return;
         
         currentSignIndex = index;
+        
+        // Update overlay if enabled
+        if (overlayEnabled && !aslOverlay.classList.contains('hidden')) {
+          showSignOverlay(index);
+        }
+      }
+
+      function showSignOverlay(index) {
+        if (index < 0 || index >= currentSigns.length) return;
+        
         const { word, signData } = currentSigns[index];
         
-        // Fade out
-        currentSign.classList.add('opacity-0');
-        
-        setTimeout(() => {
-          // Update content
-          if (signData && signData.imageUrl) {
-            // Word has ASL image - show image + lexical class
-            currentSign.innerHTML = `
-              <div class="mb-4">
-                <img src="${signData.imageUrl}" alt="${word}" class="w-32 h-32 mx-auto object-contain rounded-lg shadow-lg" 
-                     onerror="this.parentElement.innerHTML='<div class=\\'w-32 h-32 mx-auto flex items-center justify-center bg-gray-100 rounded-lg shadow-lg\\'><span class=\\'text-gray-400\\'>Image unavailable</span></div>';">
-              </div>
-              <div class="text-xl font-semibold text-gray-800">${signData.lexicalClass}</div>
-            `;
-          } else {
-            // Word has no ASL image - show only the word as text
-            currentSign.innerHTML = `
-              <div class="text-2xl font-bold text-gray-800">${word.toUpperCase()}</div>
-            `;
-          }
-          
-          // Fade in
-          currentSign.classList.remove('opacity-0');
-        }, 250);
-        
-        // Update indicators
-        updateIndicators();
-        
-        // Update counter
-        signCounter.textContent = `${index + 1} of ${currentSigns.length}`;
-        
-        // Update navigation buttons
-        prevButton.disabled = index === 0;
-        nextButton.disabled = index === currentSigns.length - 1;
+        if (signData?.imageUrl) {
+          currentSignOverlay.innerHTML = `
+            <img src="${signData.imageUrl}" alt="${word}" onerror="this.style.display='none';">
+            <div class="word-text">${word.toUpperCase()}</div>
+            <div class="lexical-class">${signData.lexicalClass}</div>
+          `;
+        } else {
+          currentSignOverlay.innerHTML = `
+            <div class="word-text" style="margin-top: 0;">${word.toUpperCase()}</div>
+            <div class="lexical-class">No sign image available</div>
+          `;
+        }
       }
 
       function updateIndicators() {
-        const dots = signIndicators.children;
-        for (let i = 0; i < dots.length; i++) {
-          dots[i].className = i === currentSignIndex 
-            ? 'w-3 h-3 rounded-full bg-blue-600 transition-colors'
-            : 'w-3 h-3 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors';
-        }
+        // No indicators to update since we removed the main display
       }
 
-      function startAutoPlay() {
-        if (autoPlayInterval) clearInterval(autoPlayInterval);
-        isPlaying = true;
-        playIcon.classList.add('hidden');
-        pauseIcon.classList.remove('hidden');
+      function startSlideshow() {
+        if (!autoAdvance) return;
         
-        autoPlayInterval = setInterval(() => {
-          if (currentSignIndex < currentSigns.length - 1) {
-            showSign(currentSignIndex + 1);
-          } else {
-            showSign(0); // Loop back to start
-          }
-        }, 2000); // Default 2 seconds per sign
-      }
-
-      function startAutoPlayWithVideoTiming() {
-        if (autoPlayInterval) clearInterval(autoPlayInterval);
+        clearInterval(slideInterval);
+        const duration = uploadedVideo.duration;
+        const interval = duration && currentSigns.length ? Math.max(500, Math.min(10000, (duration / currentSigns.length) * 1000)) : 2000;
         
-        // Get video duration
-        const videoDuration = uploadedVideo.duration;
-        
-        if (!videoDuration || !isFinite(videoDuration) || currentSigns.length === 0) {
-          console.log('Could not get video duration, using default timing');
-          startAutoPlay();
-          return;
-        }
-        
-        // Calculate timing: video duration (in seconds) divided by number of signs
-        const signDuration = (videoDuration / currentSigns.length) * 1000; // Convert to milliseconds
-        
-        // Set reasonable bounds (minimum 0.5 seconds, maximum 10 seconds per sign)
-        const clampedDuration = Math.max(500, Math.min(10000, signDuration));
-        
-        console.log(`Video duration: ${videoDuration.toFixed(2)}s, Signs: ${currentSigns.length}, Duration per sign: ${(clampedDuration/1000).toFixed(2)}s`);
-        
-        isPlaying = true;
-        playIcon.classList.add('hidden');
-        pauseIcon.classList.remove('hidden');
-        
-        autoPlayInterval = setInterval(() => {
-          if (currentSignIndex < currentSigns.length - 1) {
-            showSign(currentSignIndex + 1);
-          } else {
-            showSign(0); // Loop back to start
-          }
-        }, clampedDuration);
-      }
-
-      function setupVideoSyncedPlayback() {
-        // Remove any existing event listeners to prevent duplicates
-        uploadedVideo.removeEventListener('play', handleVideoPlay);
-        uploadedVideo.removeEventListener('pause', handleVideoPause);
-        uploadedVideo.removeEventListener('ended', handleVideoEnded);
-        uploadedVideo.removeEventListener('seeked', handleVideoSeeked);
-        
-        // Add event listeners for video synchronization
-        uploadedVideo.addEventListener('play', handleVideoPlay);
-        uploadedVideo.addEventListener('pause', handleVideoPause);
-        uploadedVideo.addEventListener('ended', handleVideoEnded);
-        uploadedVideo.addEventListener('seeked', handleVideoSeeked);
-        
-        console.log('Video-synced playback setup complete. ASL animation will start when video plays.');
-      }
-
-      function handleVideoPlay() {
-        // Start ASL slideshow when video starts playing
-        if (uploadedVideo.readyState >= 1) {
-          startAutoPlayWithVideoTiming();
-        } else {
-          uploadedVideo.addEventListener('loadedmetadata', startAutoPlayWithVideoTiming, { once: true });
-        }
-      }
-
-      function handleVideoPause() {
-        // Pause ASL slideshow when video is paused
-        stopAutoPlay();
-      }
-
-      function handleVideoEnded() {
-        // Stop ASL slideshow when video ends
-        stopAutoPlay();
-        // Reset to first sign
-        showSign(0);
-      }
-
-      function handleVideoSeeked() {
-        // If video is seeking while playing, restart slideshow with current timing
-        if (!uploadedVideo.paused && !uploadedVideo.ended) {
-          handleVideoPlay();
-        }
-      }
-
-      function stopAutoPlay() {
-        if (autoPlayInterval) {
-          clearInterval(autoPlayInterval);
-          autoPlayInterval = null;
-        }
-        isPlaying = false;
-        playIcon.classList.remove('hidden');
-        pauseIcon.classList.add('hidden');
-      }
-
-      function toggleAutoPlay() {
-        if (isPlaying) {
-          stopAutoPlay();
-        } else {
-          startAutoPlay();
-        }
+        slideInterval = setInterval(() => {
+          const nextIndex = currentSignIndex < currentSigns.length - 1 ? currentSignIndex + 1 : 0;
+          showSign(nextIndex);
+        }, interval);
       }
     });
   </script>

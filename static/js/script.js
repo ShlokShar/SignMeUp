@@ -36,7 +36,6 @@ function uploadFile(file) {
   .then(res => res.json())
   .then(data => {
     console.log("Server response:", data);
-    alert("Uploaded: " + data.filename);
   })
   .catch(err => {
     console.error("Upload error:", err);
