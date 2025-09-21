@@ -1,5 +1,6 @@
 import flask
 import os
+from asl_util.ai import main
 
 app = flask.Flask(__name__)
 UPLOAD_FOLDER = "uploads"
@@ -23,6 +24,9 @@ def upload():
     filepath = os.path.join(UPLOAD_FOLDER, file.filename)
     file.save(filepath)
 
+    main(filepath)
+
+    # run ai
     return flask.jsonify({"message": "File uploaded successfully", "filename": file.filename})
 
 
